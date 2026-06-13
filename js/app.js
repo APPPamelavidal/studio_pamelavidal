@@ -142,6 +142,108 @@ window.onload = function(){
     }
 
 }
+    function carregarAgenda() {
+
+    const container =
+        document.getElementById("horariosDisponiveis");
+
+    if(!container) return;
+
+    const horarios =
+        JSON.parse(localStorage.getItem("horarios")) || [];
+
+    container.innerHTML = "";
+
+    horarios.forEach((horario, index)=>{
+
+        container.innerHTML += `
+            <div class="cardHorario">
+
+                <span>${horario}</span>
+
+                <button onclick="agendarHorario(${index})">
+                    Agendar
+                </button>
+
+            </div>
+        `;
+
+    });
+
+}
+
+function agendarHorario(index){
+
+    const usuario =
+        JSON.parse(localStorage.getItem("usuario"));
+
+    const horarios =
+        JSON.parse(localStorage.getItem("horarios")) || [];
+
+    const agendamentos =
+        JSON.parse(localStorage.getItem("agendamentos")) || [];
+
+    const horarioEscolhido =
+        horarios[index];
+
+    agendamentos.push({
+
+        cliente: usuario.nome,
+        celular: usuario.celular,
+        horario: horarioEscolhido
+
+    });
+
+    horarios.splice(index,1);
+
+    localStorage.setItem(
+        "horarios",
+        JSON.stringify(horarios)
+    );
+
+    localStorage.setItem(
+        "agendamentos",
+        JSON.stringify(agendamentos)
+    );
+
+    alert("Horário agendado!");
+
+    carregarAgenda();
+
+    carregarMeusAgendamentos();
+
+}
+
+function carregarMeusAgendamentos(){
+
+    const area =
+        document.getElementById("meusAgendamentos");
+
+    if(!area) return;
+
+    const usuario =
+        JSON.parse(localStorage.getItem("usuario"));
+
+    const agendamentos =
+        JSON.parse(localStorage.getItem("agendamentos")) || [];
+
+    area.innerHTML = "";
+
+    agendamentos.forEach(item=>{
+
+        if(item.celular === usuario.celular){
+
+            area.innerHTML += `
+                <div class="cardHorario">
+                    ${item.horario}
+                </div>
+            `;
+
+        }
+
+    });
+
+}
 
     window.location.href = "login.html";
 }
