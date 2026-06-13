@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>Painel Administrativo</title>
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Painel Administrativo</h1>
+
+    <h3>Nome do Studio</h3>
+
+    <input
+        type="text"
+        id="nomeStudio"
+        placeholder="Studio Pamela Vidal">
+
+    <button onclick="salvarStudio()">
+        Salvar Nome
+    </button>
+
+    <hr>
+
+    <h3>Adicionar Horário</h3>
+
+    <input type="time" id="novoHorario">
+
+    <button onclick="adicionarHorario()">
+        Adicionar Horário
+    </button>
+
+    <hr>
+
+    <h3>Horários Disponíveis</h3>
+
+    <ul id="listaHorarios"></ul>
+
+</div>
+
+<script src="js/app.js"></script>
+
+</body>
+</html>
