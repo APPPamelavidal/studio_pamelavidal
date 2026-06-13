@@ -251,3 +251,4 @@ function carregarMeusAgendamentos(){
 
     window.location.href = "login.html";
 }
+<script src="js/app.js"></script>
