@@ -48,4 +48,6 @@ function login() {
 
     if (usuario.celular === celular && usuario.senha === senha) {
         alert("Login realizado com sucesso!");
-        localStorage.setItem("logado",
+        localStorage.setItem("logado", "true");
+        window.location.href = "agenda.html";
+    } else
