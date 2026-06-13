@@ -104,5 +104,124 @@ leitor.onload = function(e) {
 
 leitor.readAsDataURL(arquivo);
 ```
+    // =====================
+// NOME DO STUDIO
+// =====================
+
+function salvarStudio() {
+
+    const nomeStudio =
+        document.getElementById("nomeStudio").value;
+
+    localStorage.setItem(
+        "nomeStudio",
+        nomeStudio
+    );
+
+    alert("Nome salvo com sucesso!");
+
+}
+
+// =====================
+// HORÁRIOS
+// =====================
+
+let horarios =
+    JSON.parse(localStorage.getItem("horarios")) || [];
+
+function adicionarHorario() {
+
+    const data =
+        document.getElementById("dataHorario").value;
+
+    const hora =
+        document.getElementById("novoHorario").value;
+
+    if (!data || !hora) {
+
+        alert("Selecione a data e o horário");
+
+        return;
+    }
+
+    horarios.push({
+        data: data,
+        hora: hora
+    });
+
+    localStorage.setItem(
+        "horarios",
+        JSON.stringify(horarios)
+    );
+
+    carregarHorarios();
+
+    alert("Horário adicionado!");
+}
+
+function carregarHorarios() {
+
+    const lista =
+        document.getElementById("listaHorarios");
+
+    if (!lista) return;
+
+    lista.innerHTML = "";
+
+    horarios.forEach((item, index) => {
+
+        lista.innerHTML += `
+            <li>
+                ${item.data} - ${item.hora}
+
+                <button onclick="removerHorario(${index})">
+                    Excluir
+                </button>
+            </li>
+        `;
+    });
+}
+
+function removerHorario(index) {
+
+    horarios.splice(index, 1);
+
+    localStorage.setItem(
+        "horarios",
+        JSON.stringify(horarios)
+    );
+
+    carregarHorarios();
+}
+    window.onload = function() {
+
+    carregarHorarios();
+
+    const nomeStudio =
+        localStorage.getItem("nomeStudio");
+
+    const campoNome =
+        document.getElementById("nomeStudio");
+
+    if (campoNome && nomeStudio) {
+
+        campoNome.value = nomeStudio;
+
+    }
+
+    const fotoSalva =
+        localStorage.getItem("fotoCapa");
+
+    const preview =
+        document.getElementById("previewFoto");
+
+    if (preview && fotoSalva) {
+
+        preview.src = fotoSalva;
+        preview.style.display = "block";
+
+    }
+
+};
 
 }
