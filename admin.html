@@ -28,9 +28,41 @@
 
     <hr>
 
+    <h3>Foto de Capa</h3>
+
+    <input
+        type="file"
+        id="fotoCapa"
+        accept="image/*">
+
+    <button onclick="salvarFotoCapa()">
+        Salvar Foto
+    </button>
+
+    <br><br>
+
+    <img
+        id="previewFoto"
+        src=""
+        style="
+            width:100%;
+            max-height:250px;
+            object-fit:cover;
+            border-radius:15px;
+            display:none;
+        ">
+
+    <hr>
+
     <h3>Adicionar Horário</h3>
 
-    <input type="time" id="novoHorario">
+    <input
+        type="date"
+        id="dataHorario">
+
+    <input
+        type="time"
+        id="novoHorario">
 
     <button onclick="adicionarHorario()">
         Adicionar Horário
