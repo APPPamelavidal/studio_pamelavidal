@@ -1,83 +1,63 @@
 function cadastrar() {
+    const nome = document.getElementById("nome").value;
+    const celular = document.getElementById("celular").value;
+    const senha = document.getElementById("senha").value;
+    const confirmarSenha = document.getElementById("confirmarSenha").value;
 
-```
-const nome = document.getElementById("nome").value;
-const celular = document.getElementById("celular").value;
-const senha = document.getElementById("senha").value;
-const confirmarSenha = document.getElementById("confirmarSenha").value;
+    if (!nome || !celular || !senha || !confirmarSenha) {
+        alert("Preencha todos os campos");
+        return;
+    }
 
-if (!nome || !celular || !senha || !confirmarSenha) {
-    alert("Preencha todos os campos");
-    return;
-}
+    if (senha !== confirmarSenha) {
+        alert("As senhas não conferem");
+        return;
+    }
 
-if (senha !== confirmarSenha) {
-    alert("As senhas não conferem");
-    return;
-}
+    // Salva lista de usuários (não sobrescreve)
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-const usuario = {
-    nome,
-    celular,
-    senha
-};
+    const jaExiste = usuarios.find(u => u.celular === celular);
+    if (jaExiste) {
+        alert("Já existe um usuário cadastrado com esse celular");
+        return;
+    }
 
-localStorage.setItem("usuario", JSON.stringify(usuario));
+    usuarios.push({ nome, celular, senha });
+    localStorage.setItem("usuarios", JSON.stringify(usuarios));
 
-alert("Cadastro realizado com sucesso!");
-
-window.location.href = "login.html";
-```
-
+    alert("Cadastro realizado com sucesso!");
+    window.location.href = "login.html";
 }
 
 function login() {
+    const celular = document.getElementById("loginCelular").value;
+    const senha = document.getElementById("loginSenha").value;
 
-```
-const celular = document.getElementById("loginCelular").value;
-const senha = document.getElementById("loginSenha").value;
+    // Login ADM
+    if (celular === "admin" && senha === "123456") {
+        alert("Login de administrador realizado com sucesso!");
+        window.location.href = "admin.html";
+        return;
+    }
 
-// Login ADM
-if (celular === "admin" && senha === "123456") {
+    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
 
-    alert("Login de administrador realizado com sucesso!");
+    if (usuarios.length === 0) {
+        alert("Nenhum usuário cadastrado");
+        return;
+    }
 
-    window.location.href = "admin.html";
+    const usuario = usuarios.find(u => u.celular === celular && u.senha === senha);
 
-    return;
-}
-
-const usuario =
-    JSON.parse(localStorage.getItem("usuario"));
-
-if (!usuario) {
-
-    alert("Nenhum usuário cadastrado");
-
-    return;
-}
-
-if (
-    usuario.celular === celular &&
-    usuario.senha === senha
-) {
-
-    alert("Login realizado com sucesso!");
-
-    localStorage.setItem(
-        "logado",
-        "true"
-    );
-
-    window.location.href = "agenda.html";
-
-} else {
-
-    alert("Celular ou senha incorretos");
-
-}
-```
-
+    if (usuario) {
+        alert("Login realizado com sucesso!");
+        localStorage.setItem("logado", "true");
+        localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+        window.location.href = "agenda.html";
+    } else {
+        alert("Celular ou senha incorretos");
+    }
 }
 
 // =====================
@@ -85,45 +65,28 @@ if (
 // =====================
 
 function salvarFotoCapa() {
+    const arquivo = document.getElementById("fotoCapa").files[0];
 
-```
-const arquivo =
-    document.getElementById("fotoCapa").files[0];
-
-if (!arquivo) {
-
-    alert("Selecione uma imagem");
-
-    return;
-}
-
-const leitor = new FileReader();
-
-leitor.onload = function(e) {
-
-    localStorage.setItem(
-        "fotoCapa",
-        e.target.result
-    );
-
-    const preview =
-        document.getElementById("previewFoto");
-
-    if (preview) {
-
-        preview.src = e.target.result;
-
-        preview.style.display = "block";
-
+    if (!arquivo) {
+        alert("Selecione uma imagem");
+        return;
     }
 
-    alert("Foto salva com sucesso!");
+    const leitor = new FileReader();
 
-};
+    leitor.onload = function(e) {
+        localStorage.setItem("fotoCapa", e.target.result);
 
-leitor.readAsDataURL(arquivo);
-```
+        const preview = document.getElementById("previewFoto");
+        if (preview) {
+            preview.src = e.target.result;
+            preview.style.display = "block";
+        }
 
+        alert("Foto salva com sucesso!");
+    };
+
+    leitor.readAsDataURL(arquivo);
 }
 
 // =====================
@@ -131,100 +94,73 @@ leitor.readAsDataURL(arquivo);
 // =====================
 
 function salvarStudio() {
+    const campoNome = document.getElementById("nomeStudio");
 
-```
-const nomeStudio =
-    document.getElementById("nomeStudio").value;
+    if (!campoNome) {
+        alert("Campo não encontrado");
+        return;
+    }
 
-localStorage.setItem(
-    "nomeStudio",
-    nomeStudio
-);
+    const nomeStudio = campoNome.value.trim();
 
-alert("Nome salvo com sucesso!");
-```
+    if (!nomeStudio) {
+        alert("Digite um nome para o studio");
+        return;
+    }
 
+    localStorage.setItem("nomeStudio", nomeStudio);
+    alert("Nome salvo com sucesso!");
 }
 
 // =====================
 // HORÁRIOS
 // =====================
 
-let horarios =
-JSON.parse(localStorage.getItem("horarios")) || [];
+let horarios = JSON.parse(localStorage.getItem("horarios")) || [];
 
 function adicionarHorario() {
+    const data = document.getElementById("dataHorario").value;
+    const hora = document.getElementById("novoHorario").value;
 
-```
-const data =
-    document.getElementById("dataHorario").value;
+    if (!data || !hora) {
+        alert("Selecione a data e o horário");
+        return;
+    }
 
-const hora =
-    document.getElementById("novoHorario").value;
+    // Evita duplicatas
+    const duplicado = horarios.find(h => h.data === data && h.hora === hora);
+    if (duplicado) {
+        alert("Esse horário já foi adicionado");
+        return;
+    }
 
-if (!data || !hora) {
-
-    alert("Selecione a data e o horário");
-
-    return;
-}
-
-horarios.push({
-    data: data,
-    hora: hora
-});
-
-localStorage.setItem(
-    "horarios",
-    JSON.stringify(horarios)
-);
-
-carregarHorarios();
-
-alert("Horário adicionado!");
-```
-
+    horarios.push({ data, hora });
+    localStorage.setItem("horarios", JSON.stringify(horarios));
+    carregarHorarios();
+    alert("Horário adicionado!");
 }
 
 function carregarHorarios() {
+    const lista = document.getElementById("listaHorarios");
+    if (!lista) return;
 
-```
-const lista =
-    document.getElementById("listaHorarios");
+    lista.innerHTML = "";
 
-if (!lista) return;
-
-lista.innerHTML = "";
-
-horarios.forEach((item, index) => {
-
-    lista.innerHTML += `
-        <li>
-            ${item.data} - ${item.hora}
-
-            <button onclick="removerHorario(${index})">
-                Excluir
-            </button>
-        </li>
-    `;
-});
-```
-
+    horarios.forEach((item, index) => {
+        lista.innerHTML += `
+            <li>
+                ${item.data} - ${item.hora}
+                <button onclick="removerHorario(${index})">Excluir</button>
+            </li>
+        `;
+    });
 }
 
 function removerHorario(index) {
-
-```
-horarios.splice(index, 1);
-
-localStorage.setItem(
-    "horarios",
-    JSON.stringify(horarios)
-);
-
-carregarHorarios();
-```
-
+    // Usa filter para evitar problemas de índice com splice
+    horarios = horarios.filter((_, i) => i !== index);
+    localStorage.setItem("horarios", JSON.stringify(horarios));
+    carregarHorarios();
 }
 
 // =====================
@@ -232,35 +168,21 @@ carregarHorarios();
 // =====================
 
 window.onload = function() {
+    carregarHorarios();
 
-```
-carregarHorarios();
+    const nomeStudio = localStorage.getItem("nomeStudio");
+    const campoNome = document.getElementById("nomeStudio");
 
-const nomeStudio =
-    localStorage.getItem("nomeStudio");
+    // Só preenche se for um input/textarea (não sobrescreve outros elementos)
+    if (campoNome && nomeStudio && (campoNome.tagName === "INPUT" || campoNome.tagName === "TEXTAREA")) {
+        campoNome.value = nomeStudio;
+    }
 
-const campoNome =
-    document.getElementById("nomeStudio");
+    const fotoSalva = localStorage.getItem("fotoCapa");
+    const preview = document.getElementById("previewFoto");
 
-if (campoNome && nomeStudio) {
-
-    campoNome.value = nomeStudio;
-
-}
-
-const fotoSalva =
-    localStorage.getItem("fotoCapa");
-
-const preview =
-    document.getElementById("previewFoto");
-
-if (preview && fotoSalva) {
-
-    preview.src = fotoSalva;
-
-    preview.style.display = "block";
-
-}
-```
-
+    if (preview && fotoSalva) {
+        preview.src = fotoSalva;
+        preview.style.display = "block";
+    }
 };
