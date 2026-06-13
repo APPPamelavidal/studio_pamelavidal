@@ -24,6 +24,34 @@ function cadastrar() {
     localStorage.setItem("usuario", JSON.stringify(usuario));
 
     alert("Cadastro realizado com sucesso!");
+    function login() {
+
+    const celular = document.getElementById("loginCelular").value;
+    const senha = document.getElementById("loginSenha").value;
+
+    const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+    if(!usuario){
+        alert("Nenhum usuário cadastrado");
+        return;
+    }
+
+    if(
+        usuario.celular === celular &&
+        usuario.senha === senha
+    ){
+        alert("Login realizado com sucesso!");
+
+        localStorage.setItem("logado", "true");
+
+        window.location.href = "agenda.html";
+    } else {
+
+        alert("Celular ou senha incorretos");
+
+    }
+
+}
 
     window.location.href = "login.html";
 }
