@@ -1,10 +1,11 @@
 function cadastrar() {
+
+```
 const nome = document.getElementById("nome").value;
 const celular = document.getElementById("celular").value;
 const senha = document.getElementById("senha").value;
 const confirmarSenha = document.getElementById("confirmarSenha").value;
 
-```
 if (!nome || !celular || !senha || !confirmarSenha) {
     alert("Preencha todos os campos");
     return;
@@ -31,29 +32,42 @@ window.location.href = "login.html";
 }
 
 function login() {
+
+```
 const celular = document.getElementById("loginCelular").value;
 const senha = document.getElementById("loginSenha").value;
 
-```
 // Login ADM
 if (celular === "admin" && senha === "123456") {
+
     alert("Login de administrador realizado com sucesso!");
+
     window.location.href = "admin.html";
+
     return;
 }
 
-const usuario = JSON.parse(localStorage.getItem("usuario"));
+const usuario =
+    JSON.parse(localStorage.getItem("usuario"));
 
 if (!usuario) {
+
     alert("Nenhum usuário cadastrado");
+
     return;
 }
 
-if (usuario.celular === celular && usuario.senha === senha) {
+if (
+    usuario.celular === celular &&
+    usuario.senha === senha
+) {
 
     alert("Login realizado com sucesso!");
 
-    localStorage.setItem("logado", "true");
+    localStorage.setItem(
+        "logado",
+        "true"
+    );
 
     window.location.href = "agenda.html";
 
@@ -65,6 +79,10 @@ if (usuario.celular === celular && usuario.senha === senha) {
 ```
 
 }
+
+// =====================
+// FOTO DE CAPA
+// =====================
 
 function salvarFotoCapa() {
 
@@ -94,6 +112,7 @@ leitor.onload = function(e) {
     if (preview) {
 
         preview.src = e.target.result;
+
         preview.style.display = "block";
 
     }
@@ -104,21 +123,26 @@ leitor.onload = function(e) {
 
 leitor.readAsDataURL(arquivo);
 ```
-    // =====================
+
+}
+
+// =====================
 // NOME DO STUDIO
 // =====================
 
 function salvarStudio() {
 
-    const nomeStudio =
-        document.getElementById("nomeStudio").value;
+```
+const nomeStudio =
+    document.getElementById("nomeStudio").value;
 
-    localStorage.setItem(
-        "nomeStudio",
-        nomeStudio
-    );
+localStorage.setItem(
+    "nomeStudio",
+    nomeStudio
+);
 
-    alert("Nome salvo com sucesso!");
+alert("Nome salvo com sucesso!");
+```
 
 }
 
@@ -127,101 +151,116 @@ function salvarStudio() {
 // =====================
 
 let horarios =
-    JSON.parse(localStorage.getItem("horarios")) || [];
+JSON.parse(localStorage.getItem("horarios")) || [];
 
 function adicionarHorario() {
 
-    const data =
-        document.getElementById("dataHorario").value;
+```
+const data =
+    document.getElementById("dataHorario").value;
 
-    const hora =
-        document.getElementById("novoHorario").value;
+const hora =
+    document.getElementById("novoHorario").value;
 
-    if (!data || !hora) {
+if (!data || !hora) {
 
-        alert("Selecione a data e o horário");
+    alert("Selecione a data e o horário");
 
-        return;
-    }
+    return;
+}
 
-    horarios.push({
-        data: data,
-        hora: hora
-    });
+horarios.push({
+    data: data,
+    hora: hora
+});
 
-    localStorage.setItem(
-        "horarios",
-        JSON.stringify(horarios)
-    );
+localStorage.setItem(
+    "horarios",
+    JSON.stringify(horarios)
+);
 
-    carregarHorarios();
+carregarHorarios();
 
-    alert("Horário adicionado!");
+alert("Horário adicionado!");
+```
+
 }
 
 function carregarHorarios() {
 
-    const lista =
-        document.getElementById("listaHorarios");
+```
+const lista =
+    document.getElementById("listaHorarios");
 
-    if (!lista) return;
+if (!lista) return;
 
-    lista.innerHTML = "";
+lista.innerHTML = "";
 
-    horarios.forEach((item, index) => {
+horarios.forEach((item, index) => {
 
-        lista.innerHTML += `
-            <li>
-                ${item.data} - ${item.hora}
+    lista.innerHTML += `
+        <li>
+            ${item.data} - ${item.hora}
 
-                <button onclick="removerHorario(${index})">
-                    Excluir
-                </button>
-            </li>
-        `;
-    });
+            <button onclick="removerHorario(${index})">
+                Excluir
+            </button>
+        </li>
+    `;
+});
+```
+
 }
 
 function removerHorario(index) {
 
-    horarios.splice(index, 1);
+```
+horarios.splice(index, 1);
 
-    localStorage.setItem(
-        "horarios",
-        JSON.stringify(horarios)
-    );
+localStorage.setItem(
+    "horarios",
+    JSON.stringify(horarios)
+);
 
-    carregarHorarios();
+carregarHorarios();
+```
+
 }
-    window.onload = function() {
 
-    carregarHorarios();
+// =====================
+// INICIALIZAÇÃO
+// =====================
 
-    const nomeStudio =
-        localStorage.getItem("nomeStudio");
+window.onload = function() {
 
-    const campoNome =
-        document.getElementById("nomeStudio");
+```
+carregarHorarios();
 
-    if (campoNome && nomeStudio) {
+const nomeStudio =
+    localStorage.getItem("nomeStudio");
 
-        campoNome.value = nomeStudio;
+const campoNome =
+    document.getElementById("nomeStudio");
 
-    }
+if (campoNome && nomeStudio) {
 
-    const fotoSalva =
-        localStorage.getItem("fotoCapa");
+    campoNome.value = nomeStudio;
 
-    const preview =
-        document.getElementById("previewFoto");
+}
 
-    if (preview && fotoSalva) {
+const fotoSalva =
+    localStorage.getItem("fotoCapa");
 
-        preview.src = fotoSalva;
-        preview.style.display = "block";
+const preview =
+    document.getElementById("previewFoto");
 
-    }
+if (preview && fotoSalva) {
+
+    preview.src = fotoSalva;
+
+    preview.style.display = "block";
+
+}
+```
 
 };
-
-}
