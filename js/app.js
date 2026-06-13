@@ -1,5 +1,4 @@
 function cadastrar() {
-
     const nome = document.getElementById("nome").value;
     const celular = document.getElementById("celular").value;
     const senha = document.getElementById("senha").value;
@@ -29,10 +28,17 @@ function cadastrar() {
 }
 
 function login() {
-
     const celular = document.getElementById("loginCelular").value;
     const senha = document.getElementById("loginSenha").value;
 
+    // Lógica especial para admin
+    if (celular === "admin" && senha === "123456") {
+        alert("Login de administrador realizado com sucesso!");
+        window.location.href = "admin.html";
+        return;
+    }
+
+    // Caso não seja admin, tenta login normal
     const usuario = JSON.parse(localStorage.getItem("usuario"));
 
     if (!usuario) {
@@ -40,20 +46,11 @@ function login() {
         return;
     }
 
-    if (
-        usuario.celular === celular &&
-        usuario.senha === senha
-    ) {
-
+    if (usuario.celular === celular && usuario.senha === senha) {
         alert("Login realizado com sucesso!");
-
         localStorage.setItem("logado", "true");
-
         window.location.href = "agenda.html";
-
     } else {
-
         alert("Celular ou senha incorretos");
-
     }
 }
