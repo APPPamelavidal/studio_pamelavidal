@@ -31,7 +31,7 @@ function login() {
     const celular = document.getElementById("loginCelular").value;
     const senha = document.getElementById("loginSenha").value;
 
-    // Lógica especial para admin
+    // Verifica se é o admin
     if (celular === "admin" && senha === "123456") {
         alert("Login de administrador realizado com sucesso!");
         window.location.href = "admin.html";
@@ -48,9 +48,4 @@ function login() {
 
     if (usuario.celular === celular && usuario.senha === senha) {
         alert("Login realizado com sucesso!");
-        localStorage.setItem("logado", "true");
-        window.location.href = "agenda.html";
-    } else {
-        alert("Celular ou senha incorretos");
-    }
-}
+        localStorage.setItem("logado",
