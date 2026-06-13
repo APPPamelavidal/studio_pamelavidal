@@ -52,6 +52,96 @@ function cadastrar() {
     }
 
 }
+    let horarios = JSON.parse(
+    localStorage.getItem("horarios")
+) || [];
+
+function salvarStudio(){
+
+    const nomeStudio =
+        document.getElementById("nomeStudio").value;
+
+    localStorage.setItem(
+        "nomeStudio",
+        nomeStudio
+    );
+
+    alert("Nome salvo!");
+}
+
+function adicionarHorario(){
+
+    const horario =
+        document.getElementById("novoHorario").value;
+
+    if(!horario){
+        alert("Escolha um horário");
+        return;
+    }
+
+    horarios.push(horario);
+
+    localStorage.setItem(
+        "horarios",
+        JSON.stringify(horarios)
+    );
+
+    carregarHorarios();
+}
+
+function carregarHorarios(){
+
+    const lista =
+        document.getElementById("listaHorarios");
+
+    if(!lista) return;
+
+    lista.innerHTML = "";
+
+    horarios.forEach((horario, index)=>{
+
+        lista.innerHTML += `
+            <li>
+                ${horario}
+                <button onclick="removerHorario(${index})">
+                    Excluir
+                </button>
+            </li>
+        `;
+
+    });
+
+}
+
+function removerHorario(index){
+
+    horarios.splice(index,1);
+
+    localStorage.setItem(
+        "horarios",
+        JSON.stringify(horarios)
+    );
+
+    carregarHorarios();
+}
+
+window.onload = function(){
+
+    carregarHorarios();
+
+    const nomeStudio =
+        localStorage.getItem("nomeStudio");
+
+    const campo =
+        document.getElementById("nomeStudio");
+
+    if(campo && nomeStudio){
+
+        campo.value = nomeStudio;
+
+    }
+
+}
 
     window.location.href = "login.html";
 }
