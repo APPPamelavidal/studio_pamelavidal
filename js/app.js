@@ -129,6 +129,10 @@ window.onload = function(){
 
     carregarHorarios();
 
+    carregarAgenda();
+
+    carregarMeusAgendamentos();
+
     const nomeStudio =
         localStorage.getItem("nomeStudio");
 
