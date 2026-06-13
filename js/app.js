@@ -56,6 +56,42 @@ function login() {
     } else {
 
         alert("Celular ou senha incorretos");
+        function salvarFotoCapa(){
+
+    const arquivo =
+        document.getElementById("fotoCapa").files[0];
+
+    if(!arquivo){
+
+        alert("Selecione uma imagem");
+
+        return;
+    }
+
+    const leitor = new FileReader();
+
+    leitor.onload = function(e){
+
+        localStorage.setItem(
+            "fotoCapa",
+            e.target.result
+        );
+
+        document.getElementById(
+            "previewFoto"
+        ).src = e.target.result;
+
+        document.getElementById(
+            "previewFoto"
+        ).style.display = "block";
+
+        alert("Foto salva com sucesso!");
+
+    }
+
+    leitor.readAsDataURL(arquivo);
+
+}
 
     }
 }
