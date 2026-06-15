@@ -3,80 +3,535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Painel Administrativo</title>
-
+<title>Painel Admin — Studio</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
+<div id="toast-container"></div>
 
-<div class="container">
+<header class="site-header">
+  <span class="logo">⚙️ Painel Admin</span>
+  <nav>
+    <a href="index.html" style="color:var(--cinza-txt);font-size:.88rem;">Ver site</a>
+    <a href="#" onclick="sairAdmin()" style="margin-left:14px;color:var(--cinza-txt);font-size:.85rem;">Sair</a>
+  </nav>
+</header>
 
-    <h1>Painel Administrativo</h1>
+<div class="container-wide" style="max-width:860px;">
 
-    <h3>Nome do Studio</h3>
+  <a href="index.html" class="btn-voltar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Ver site
+  </a>
 
-    <input
-        type="text"
-        id="nomeStudio"
-        placeholder="Studio Pamela Vidal">
+  <!-- TABS -->
+  <div class="admin-tabs">
+    <button class="admin-tab ativo" onclick="mudarTab('tela')">🖼️ Tela de Entrada</button>
+    <button class="admin-tab" onclick="mudarTab('horarios')">📅 Horários</button>
+    <button class="admin-tab" onclick="mudarTab('cafe')">☕ Café & Brindes</button>
+    <button class="admin-tab" onclick="mudarTab('agendamentos')">📋 Agendamentos</button>
+  </div>
 
-    <button onclick="salvarStudio()">
-        Salvar Nome
-    </button>
+  <!-- TAB: TELA DE ENTRADA -->
+  <div class="tab-panel ativo" id="tab-tela">
 
-    <hr>
+    <div class="admin-section">
+      <h3>🏷️ Nome do Studio</h3>
+      <div class="field">
+        <label>Nome exibido na tela principal</label>
+        <input type="text" id="nomeStudio" placeholder="Studio Pamela Vidal">
+      </div>
+      <div class="field">
+        <label>Descrição / slogan</label>
+        <textarea id="descStudio" placeholder="Agende seu horário online de forma rápida e prática..."></textarea>
+      </div>
+      <button class="form-btn" onclick="salvarStudio()">💾 Salvar nome & descrição</button>
+    </div>
 
-    <h3>Foto de Capa</h3>
+    <div class="admin-section">
+      <h3>📸 Foto de Capa (perfil)</h3>
+      <div class="field">
+        <label>Selecione a imagem principal</label>
+        <input type="file" id="fotoCapa" accept="image/*" onchange="previewFoto(this)">
+      </div>
+      <img id="previewFoto" src="" style="width:100%;max-height:220px;object-fit:cover;border-radius:var(--radius);display:none;margin-top:10px;">
+      <button class="form-btn" onclick="salvarFotoCapa()" style="margin-top:12px;">💾 Salvar foto</button>
+    </div>
 
-    <input
-        type="file"
-        id="fotoCapa"
-        accept="image/*">
+    <div class="admin-section">
+      <h3>🖼️ Banners de Promoções & Eventos</h3>
+      <p style="font-size:.85rem;color:var(--cinza-txt);margin-bottom:14px;">
+        Adicione imagens de promoções ou eventos. Elas aparecem na tela inicial para as clientes.
+      </p>
+      <div class="field">
+        <label>Imagem do banner</label>
+        <input type="file" id="novoBannerImg" accept="image/*">
+      </div>
+      <div class="field">
+        <label>Legenda (opcional)</label>
+        <input type="text" id="novoBannerLabel" placeholder="Ex: 50% off em manicure este mês!">
+      </div>
+      <button class="form-btn" onclick="adicionarBanner()">➕ Adicionar banner</button>
 
-    <button onclick="salvarFotoCapa()">
-        Salvar Foto
-    </button>
+      <div class="banner-preview-lista" id="listaBanners"></div>
+    </div>
 
-    <br><br>
+  </div>
 
-    <img
-        id="previewFoto"
-        src=""
-        style="
-            width:100%;
-            max-height:250px;
-            object-fit:cover;
-            border-radius:15px;
-            display:none;
-        ">
+  <!-- TAB: HORÁRIOS -->
+  <div class="tab-panel" id="tab-horarios">
 
-    <hr>
+    <div class="admin-section">
+      <h3>➕ Adicionar Horário</h3>
+      <div class="field-row">
+        <div class="field">
+          <label>Data</label>
+          <input type="date" id="dataHorario">
+        </div>
+        <div class="field">
+          <label>Horário</label>
+          <input type="time" id="novoHorario">
+        </div>
+      </div>
+      <button class="form-btn" onclick="adicionarHorario()">➕ Adicionar horário</button>
+    </div>
 
-    <h3>Adicionar Horário</h3>
+    <div class="admin-section">
+      <h3>📋 Horários Cadastrados</h3>
+      <div id="listaHorarios">
+        <div class="empty-state"><div class="es-icon">🗓️</div><p>Nenhum horário cadastrado ainda.</p></div>
+      </div>
+    </div>
 
-    <input
-        type="date"
-        id="dataHorario">
+  </div>
 
-    <input
-        type="time"
-        id="novoHorario">
+  <!-- TAB: CAFÉ & BRINDES -->
+  <div class="tab-panel" id="tab-cafe">
 
-    <button onclick="adicionarHorario()">
-        Adicionar Horário
-    </button>
+    <div class="admin-section">
+      <h3>☕ Opções de Café / Bebida</h3>
+      <p style="font-size:.85rem;color:var(--cinza-txt);margin-bottom:14px;">
+        Configure as bebidas disponíveis no atendimento. Cada item tem emoji + nome.
+      </p>
+      <div id="listaCafe"></div>
+      <button class="form-btn" style="margin-top:10px;" onclick="adicionarOpcaoCafe()">➕ Nova opção</button>
+      <button class="form-btn gold" style="margin-top:8px;" onclick="salvarCafe()">💾 Salvar bebidas</button>
+    </div>
 
-    <hr>
+    <div class="admin-section">
+      <h3>🎁 Opções de Brinde</h3>
+      <p style="font-size:.85rem;color:var(--cinza-txt);margin-bottom:14px;">
+        Mimos e brindes disponíveis para as clientes escolherem ao agendar.
+      </p>
+      <div id="listaBrindes"></div>
+      <button class="form-btn" style="margin-top:10px;" onclick="adicionarOpcaoBrinde()">➕ Novo brinde</button>
+      <button class="form-btn gold" style="margin-top:8px;" onclick="salvarBrindes()">💾 Salvar brindes</button>
+    </div>
 
-    <h3>Horários Disponíveis</h3>
+  </div>
 
-    <ul id="listaHorarios"></ul>
+  <!-- TAB: AGENDAMENTOS -->
+  <div class="tab-panel" id="tab-agendamentos">
+
+    <div class="admin-section">
+      <h3>📋 Todos os Agendamentos</h3>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <button class="btn btn-outline" style="padding:8px 18px;font-size:.85rem;" onclick="exportarCSV()">
+          📊 Exportar CSV
+        </button>
+        <button class="btn btn-outline" style="padding:8px 18px;font-size:.85rem;" onclick="sincronizarSheets()">
+          🔄 Sincronizar Google Sheets
+        </button>
+      </div>
+      <div id="listaAgendamentos"></div>
+    </div>
+
+    <div class="admin-section">
+      <h3>⚙️ Configurar Google Sheets</h3>
+      <p style="font-size:.85rem;color:var(--cinza-txt);margin-bottom:12px;">
+        Cole aqui a URL do seu <strong>Google Apps Script Web App</strong> para sincronizar agendamentos automaticamente.
+        <br><a href="#" onclick="abrirGuiaSheets()" style="font-size:.82rem;">Como configurar? →</a>
+      </p>
+      <div class="field">
+        <label>URL do Web App (Google Apps Script)</label>
+        <input type="url" id="sheetsUrl" placeholder="https://script.google.com/macros/s/...">
+      </div>
+      <button class="form-btn" onclick="salvarSheetsUrl()">💾 Salvar URL</button>
+
+      <div id="sheetsGuia" style="display:none;margin-top:16px;background:var(--cinza-f);border-radius:var(--radius-sm);padding:16px;font-size:.85rem;color:var(--cinza-txt);line-height:1.7;">
+        <strong>Como configurar o Google Sheets:</strong><br>
+        1. Acesse <a href="https://sheets.google.com" target="_blank">sheets.google.com</a> e crie uma planilha.<br>
+        2. Vá em <strong>Extensões → Apps Script</strong>.<br>
+        3. Cole o código abaixo e clique em <strong>Implantar → Novo Implantação → App da Web</strong>.<br>
+        4. Defina acesso como <em>"Qualquer pessoa"</em> e copie a URL gerada aqui.<br><br>
+        <code style="display:block;background:#fff;padding:12px;border-radius:8px;font-size:.78rem;overflow:auto;">
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+  sheet.appendRow([
+    data.nomeCliente, data.celular,
+    data.data, data.hora,
+    data.cafe, data.brinde,
+    data.obs, data.criadoEm
+  ]);
+  return ContentService.createTextOutput("ok");
+}
+        </code>
+      </div>
+    </div>
+
+  </div>
 
 </div>
 
 <script src="js/app.js"></script>
+<script>
+// =====================
+// TABS
+// =====================
+function mudarTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('ativo'));
+  document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('ativo'));
+  document.getElementById('tab-' + id).classList.add('ativo');
+  event.target.classList.add('ativo');
 
+  if (id === 'agendamentos') carregarAgendamentos();
+}
+
+// =====================
+// INIT
+// =====================
+window.addEventListener('DOMContentLoaded', () => {
+  if (!localStorage.getItem('isAdmin')) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Preenche campos
+  const nome = localStorage.getItem('nomeStudio') || '';
+  const desc = localStorage.getItem('descStudio') || '';
+  if (nome) document.getElementById('nomeStudio').value = nome;
+  if (desc) document.getElementById('descStudio').value = desc;
+
+  const foto = localStorage.getItem('fotoCapa');
+  if (foto) { const p = document.getElementById('previewFoto'); p.src = foto; p.style.display='block'; }
+
+  const url = localStorage.getItem('sheetsUrl') || '';
+  if (url) document.getElementById('sheetsUrl').value = url;
+
+  carregarHorarios();
+  carregarBanners();
+  carregarCafe();
+  carregarBrindes();
+});
+
+// =====================
+// STUDIO
+// =====================
+function salvarStudio() {
+  const nome = document.getElementById('nomeStudio').value.trim();
+  const desc = document.getElementById('descStudio').value.trim();
+  if (!nome) { toast('Digite o nome do studio', 'err'); return; }
+  localStorage.setItem('nomeStudio', nome);
+  localStorage.setItem('descStudio', desc);
+  toast('Informações salvas!', 'ok');
+}
+
+function previewFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const p = document.getElementById('previewFoto');
+    p.src = e.target.result; p.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function salvarFotoCapa() {
+  const file = document.getElementById('fotoCapa').files[0];
+  if (!file) { toast('Selecione uma imagem', 'err'); return; }
+  const r = new FileReader();
+  r.onload = e => {
+    localStorage.setItem('fotoCapa', e.target.result);
+    toast('Foto salva!', 'ok');
+  };
+  r.readAsDataURL(file);
+}
+
+// =====================
+// BANNERS
+// =====================
+function adicionarBanner() {
+  const file  = document.getElementById('novoBannerImg').files[0];
+  const label = document.getElementById('novoBannerLabel').value.trim();
+  if (!file) { toast('Selecione uma imagem para o banner', 'err'); return; }
+  const r = new FileReader();
+  r.onload = e => {
+    const banners = JSON.parse(localStorage.getItem('banners') || '[]');
+    banners.push({ img: e.target.result, label });
+    localStorage.setItem('banners', JSON.stringify(banners));
+    document.getElementById('novoBannerImg').value = '';
+    document.getElementById('novoBannerLabel').value = '';
+    toast('Banner adicionado!', 'ok');
+    carregarBanners();
+  };
+  r.readAsDataURL(file);
+}
+
+function carregarBanners() {
+  const banners = JSON.parse(localStorage.getItem('banners') || '[]');
+  const lista = document.getElementById('listaBanners');
+  if (banners.length === 0) { lista.innerHTML = ''; return; }
+  lista.innerHTML = banners.map((b,i) => `
+    <div class="banner-preview-item">
+      <img src="${b.img}" alt="banner">
+      <input type="text" value="${b.label || ''}" placeholder="Legenda"
+             onchange="editarLabelBanner(${i}, this.value)">
+      <button class="rem-banner" onclick="removerBanner(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function editarLabelBanner(i, val) {
+  const banners = JSON.parse(localStorage.getItem('banners') || '[]');
+  if (banners[i]) { banners[i].label = val; localStorage.setItem('banners', JSON.stringify(banners)); }
+}
+
+function removerBanner(i) {
+  const banners = JSON.parse(localStorage.getItem('banners') || '[]').filter((_,idx)=>idx!==i);
+  localStorage.setItem('banners', JSON.stringify(banners));
+  toast('Banner removido', 'info');
+  carregarBanners();
+}
+
+// =====================
+// HORÁRIOS
+// =====================
+let horarios = [];
+
+function adicionarHorario() {
+  const data = document.getElementById('dataHorario').value;
+  const hora = document.getElementById('novoHorario').value;
+  if (!data || !hora) { toast('Selecione data e horário', 'err'); return; }
+
+  horarios = JSON.parse(localStorage.getItem('horarios') || '[]');
+  const dup = horarios.find(h => h.data === data && h.hora === hora);
+  if (dup) { toast('Horário já existe!', 'err'); return; }
+
+  horarios.push({ data, hora });
+  horarios.sort((a,b) => (a.data+a.hora).localeCompare(b.data+b.hora));
+  localStorage.setItem('horarios', JSON.stringify(horarios));
+  toast('Horário adicionado!', 'ok');
+  carregarHorarios();
+}
+
+function carregarHorarios() {
+  horarios = JSON.parse(localStorage.getItem('horarios') || '[]');
+  const agendamentos = JSON.parse(localStorage.getItem('agendamentos') || '[]');
+  const lista = document.getElementById('listaHorarios');
+  if (!lista) return;
+
+  if (horarios.length === 0) {
+    lista.innerHTML = '<div class="empty-state"><div class="es-icon">🗓️</div><p>Nenhum horário ainda.</p></div>';
+    return;
+  }
+
+  lista.innerHTML = horarios.map((h, i) => {
+    const agend = agendamentos.find(a => a.data === h.data && a.hora === h.hora);
+    const statusHtml = agend
+      ? `<span class="hi-status agend">Agendado — ${agend.nomeCliente}</span>`
+      : `<span class="hi-status livre">Livre</span>`;
+    return `
+      <div class="horario-item">
+        <span class="hi-info">📅 ${formatarData(h.data)} às ${h.hora}</span>
+        ${statusHtml}
+        ${!agend ? `<button class="btn btn-danger" style="padding:7px 14px;font-size:.8rem;" onclick="removerHorario(${i})">Excluir</button>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function removerHorario(i) {
+  horarios = horarios.filter((_,idx) => idx !== i);
+  localStorage.setItem('horarios', JSON.stringify(horarios));
+  toast('Horário removido', 'info');
+  carregarHorarios();
+}
+
+// =====================
+// CAFÉ
+// =====================
+function carregarCafe() {
+  const lista = JSON.parse(localStorage.getItem('opcoesCafe') || '[]');
+  const cont = document.getElementById('listaCafe');
+  if (lista.length === 0) {
+    [
+      {emoji:'☕',nome:'Café preto'},
+      {emoji:'🥛',nome:'Café com leite'},
+      {emoji:'🍵',nome:'Chá'},
+      {emoji:'💧',nome:'Água'},
+      {emoji:'🧃',nome:'Suco'},
+    ].forEach(item => adicionarLinhaOpcao('listaCafe', item));
+    return;
+  }
+  lista.forEach(item => adicionarLinhaOpcao('listaCafe', item));
+}
+
+function adicionarOpcaoCafe() { adicionarLinhaOpcao('listaCafe', {emoji:'',nome:''}); }
+
+function carregarBrindes() {
+  const lista = JSON.parse(localStorage.getItem('opcoesBrindes') || '[]');
+  const cont = document.getElementById('listaBrindes');
+  if (lista.length === 0) {
+    [
+      {emoji:'💅',nome:'Esmalte'},
+      {emoji:'🌸',nome:'Perfume'},
+      {emoji:'🍫',nome:'Chocolate'},
+      {emoji:'🎀',nome:'Laço'},
+    ].forEach(item => adicionarLinhaOpcao('listaBrindes', item));
+    return;
+  }
+  lista.forEach(item => adicionarLinhaOpcao('listaBrindes', item));
+}
+
+function adicionarOpcaoBrinde() { adicionarLinhaOpcao('listaBrindes', {emoji:'',nome:''}); }
+
+function adicionarLinhaOpcao(containerId, item) {
+  const cont = document.getElementById(containerId);
+  const div = document.createElement('div');
+  div.className = 'opcao-admin-item';
+  div.innerHTML = `
+    <input type="text" value="${item.emoji||''}" placeholder="🎁" style="width:52px;text-align:center;">
+    <input type="text" value="${item.nome||''}" placeholder="Nome da opção" style="flex:1;">
+    <button class="btn btn-danger" style="padding:7px 12px;font-size:.8rem;" onclick="this.parentElement.remove()">✕</button>
+  `;
+  cont.appendChild(div);
+}
+
+function coletarOpcoes(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} .opcao-admin-item`))
+    .map(div => {
+      const inputs = div.querySelectorAll('input');
+      return { emoji: inputs[0].value.trim(), nome: inputs[1].value.trim() };
+    })
+    .filter(o => o.nome);
+}
+
+function salvarCafe() {
+  const lista = coletarOpcoes('listaCafe');
+  localStorage.setItem('opcoesCafe', JSON.stringify(lista));
+  toast('Bebidas salvas!', 'ok');
+}
+
+function salvarBrindes() {
+  const lista = coletarOpcoes('listaBrindes');
+  localStorage.setItem('opcoesBrindes', JSON.stringify(lista));
+  toast('Brindes salvos!', 'ok');
+}
+
+// =====================
+// AGENDAMENTOS
+// =====================
+function carregarAgendamentos() {
+  const lista = JSON.parse(localStorage.getItem('agendamentos') || '[]').reverse();
+  const cont = document.getElementById('listaAgendamentos');
+
+  if (lista.length === 0) {
+    cont.innerHTML = '<div class="empty-state"><div class="es-icon">📋</div><p>Nenhum agendamento ainda.</p></div>';
+    return;
+  }
+
+  cont.innerHTML = lista.map(a => `
+    <div class="agend-card" style="margin-bottom:12px;">
+      <h4>👤 ${a.nomeCliente} — ${a.celular}</h4>
+      <p>📅 ${formatarData(a.data)} às ${a.hora}</p>
+      <p>☕ Café: ${a.cafe} &nbsp;|&nbsp; 🎁 Brinde: ${a.brinde}</p>
+      ${a.obs ? `<p>📝 ${a.obs}</p>` : ''}
+      <div class="ac-tags">
+        <span class="ac-tag">${formatarDataHora(a.criadoEm)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =====================
+// EXPORT CSV
+// =====================
+function exportarCSV() {
+  const lista = JSON.parse(localStorage.getItem('agendamentos') || '[]');
+  if (lista.length === 0) { toast('Sem agendamentos para exportar', 'info'); return; }
+
+  const header = 'Nome,Celular,Data,Hora,Café,Brinde,Observações,Criado Em\n';
+  const rows = lista.map(a =>
+    `"${a.nomeCliente}","${a.celular}","${formatarData(a.data)}","${a.hora}","${a.cafe}","${a.brinde}","${a.obs || ''}","${formatarDataHora(a.criadoEm)}"`
+  ).join('\n');
+
+  const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'agendamentos.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exportado!', 'ok');
+}
+
+// =====================
+// SHEETS
+// =====================
+function salvarSheetsUrl() {
+  const url = document.getElementById('sheetsUrl').value.trim();
+  localStorage.setItem('sheetsUrl', url);
+  toast('URL salva!', 'ok');
+}
+
+async function sincronizarSheets() {
+  const url = localStorage.getItem('sheetsUrl');
+  if (!url) { toast('Configure a URL do Google Sheets primeiro', 'err'); return; }
+
+  const lista = JSON.parse(localStorage.getItem('agendamentos') || '[]');
+  if (lista.length === 0) { toast('Sem agendamentos para enviar', 'info'); return; }
+
+  toast('Sincronizando...', 'info');
+
+  let ok = 0;
+  for (const a of lista) {
+    try {
+      await fetch(url, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(a)
+      });
+      ok++;
+    } catch(e) {}
+  }
+  toast(`${ok} agendamento(s) enviado(s)!`, 'ok');
+}
+
+function abrirGuiaSheets() {
+  const guia = document.getElementById('sheetsGuia');
+  guia.style.display = guia.style.display === 'none' ? 'block' : 'none';
+}
+
+// =====================
+// UTILS
+// =====================
+function formatarData(dataStr) {
+  if (!dataStr) return '';
+  const [y,m,d] = dataStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function formatarDataHora(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'});
+}
+
+function sairAdmin() {
+  localStorage.removeItem('isAdmin');
+  window.location.href = 'index.html';
+}
+</script>
 </body>
 </html>
