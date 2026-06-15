@@ -1,188 +1,105 @@
+// =====================
+// TOAST (substitui alert)
+// =====================
+function toast(msg, tipo = 'ok') {
+  const container = document.getElementById('toast-container');
+  if (!container) { alert(msg); return; }
+  const div = document.createElement('div');
+  div.className = `toast ${tipo}`;
+  div.textContent = msg;
+  container.appendChild(div);
+  setTimeout(() => div.remove(), 3500);
+}
+
+// =====================
+// CADASTRO
+// =====================
 function cadastrar() {
-    const nome = document.getElementById("nome").value;
-    const celular = document.getElementById("celular").value;
-    const senha = document.getElementById("senha").value;
-    const confirmarSenha = document.getElementById("confirmarSenha").value;
+  const nome          = document.getElementById('nome').value.trim();
+  const celular       = document.getElementById('celular').value.trim();
+  const senha         = document.getElementById('senha').value;
+  const confirmarSenha= document.getElementById('confirmarSenha').value;
 
-    if (!nome || !celular || !senha || !confirmarSenha) {
-        alert("Preencha todos os campos");
-        return;
-    }
+  if (!nome || !celular || !senha || !confirmarSenha) {
+    toast('Preencha todos os campos', 'err'); return;
+  }
+  if (senha.length < 4) {
+    toast('Senha deve ter ao menos 4 caracteres', 'err'); return;
+  }
+  if (senha !== confirmarSenha) {
+    toast('As senhas não conferem', 'err'); return;
+  }
 
-    if (senha !== confirmarSenha) {
-        alert("As senhas não conferem");
-        return;
-    }
+  const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+  if (usuarios.find(u => u.celular === celular)) {
+    toast('Já existe uma conta com esse celular', 'err'); return;
+  }
 
-    // Salva lista de usuários (não sobrescreve)
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  usuarios.push({ nome, celular, senha });
+  localStorage.setItem('usuarios', JSON.stringify(usuarios));
 
-    const jaExiste = usuarios.find(u => u.celular === celular);
-    if (jaExiste) {
-        alert("Já existe um usuário cadastrado com esse celular");
-        return;
-    }
-
-    usuarios.push({ nome, celular, senha });
-    localStorage.setItem("usuarios", JSON.stringify(usuarios));
-
-    alert("Cadastro realizado com sucesso!");
-    window.location.href = "login.html";
+  toast('Conta criada! Redirecionando...', 'ok');
+  setTimeout(() => window.location.href = 'login.html', 1200);
 }
 
+// =====================
+// LOGIN
+// =====================
 function login() {
-    const celular = document.getElementById("loginCelular").value;
-    const senha = document.getElementById("loginSenha").value;
+  const celular = document.getElementById('loginCelular').value.trim();
+  const senha   = document.getElementById('loginSenha').value;
 
-    // Login ADM
-    if (celular === "admin" && senha === "123456") {
-        alert("Login de administrador realizado com sucesso!");
-        window.location.href = "admin.html";
-        return;
-    }
+  if (!celular || !senha) {
+    toast('Preencha celular e senha', 'err'); return;
+  }
 
-    const usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+  // Admin
+  if (celular === 'admin' && senha === '123456') {
+    localStorage.setItem('isAdmin', 'true');
+    toast('Bem-vinda, admin! ✨', 'ok');
+    setTimeout(() => window.location.href = 'admin.html', 900);
+    return;
+  }
 
-    if (usuarios.length === 0) {
-        alert("Nenhum usuário cadastrado");
-        return;
-    }
+  const usuarios = JSON.parse(localStorage.getItem('usuarios') || '[]');
+  const usuario  = usuarios.find(u => u.celular === celular && u.senha === senha);
 
-    const usuario = usuarios.find(u => u.celular === celular && u.senha === senha);
-
-    if (usuario) {
-        alert("Login realizado com sucesso!");
-        localStorage.setItem("logado", "true");
-        localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
-        window.location.href = "agenda.html";
-    } else {
-        alert("Celular ou senha incorretos");
-    }
+  if (usuario) {
+    localStorage.setItem('logado', 'true');
+    localStorage.setItem('usuarioLogado', JSON.stringify(usuario));
+    toast('Bem-vinda, ' + usuario.nome + '! 💕', 'ok');
+    setTimeout(() => window.location.href = 'agenda.html', 900);
+  } else {
+    toast('Celular ou senha incorretos', 'err');
+  }
 }
 
 // =====================
-// FOTO DE CAPA
+// GOOGLE SHEETS — chamada ao agendar
 // =====================
+function enviarParaGoogleSheets(agendamento) {
+  const url = localStorage.getItem('sheetsUrl');
+  if (!url) return; // sem URL configurada, ignora silenciosamente
 
-function salvarFotoCapa() {
-    const arquivo = document.getElementById("fotoCapa").files[0];
-
-    if (!arquivo) {
-        alert("Selecione uma imagem");
-        return;
-    }
-
-    const leitor = new FileReader();
-
-    leitor.onload = function(e) {
-        localStorage.setItem("fotoCapa", e.target.result);
-
-        const preview = document.getElementById("previewFoto");
-        if (preview) {
-            preview.src = e.target.result;
-            preview.style.display = "block";
-        }
-
-        alert("Foto salva com sucesso!");
-    };
-
-    leitor.readAsDataURL(arquivo);
+  fetch(url, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(agendamento)
+  }).catch(() => {
+    // falha silenciosa — o agendamento já está salvo localmente
+  });
 }
 
 // =====================
-// NOME DO STUDIO
+// ENTER para submeter forms
 // =====================
-
-function salvarStudio() {
-    const campoNome = document.getElementById("nomeStudio");
-
-    if (!campoNome) {
-        alert("Campo não encontrado");
-        return;
-    }
-
-    const nomeStudio = campoNome.value.trim();
-
-    if (!nomeStudio) {
-        alert("Digite um nome para o studio");
-        return;
-    }
-
-    localStorage.setItem("nomeStudio", nomeStudio);
-    alert("Nome salvo com sucesso!");
-}
-
-// =====================
-// HORÁRIOS
-// =====================
-
-let horarios = JSON.parse(localStorage.getItem("horarios")) || [];
-
-function adicionarHorario() {
-    const data = document.getElementById("dataHorario").value;
-    const hora = document.getElementById("novoHorario").value;
-
-    if (!data || !hora) {
-        alert("Selecione a data e o horário");
-        return;
-    }
-
-    // Evita duplicatas
-    const duplicado = horarios.find(h => h.data === data && h.hora === hora);
-    if (duplicado) {
-        alert("Esse horário já foi adicionado");
-        return;
-    }
-
-    horarios.push({ data, hora });
-    localStorage.setItem("horarios", JSON.stringify(horarios));
-    carregarHorarios();
-    alert("Horário adicionado!");
-}
-
-function carregarHorarios() {
-    const lista = document.getElementById("listaHorarios");
-    if (!lista) return;
-
-    lista.innerHTML = "";
-
-    horarios.forEach((item, index) => {
-        lista.innerHTML += `
-            <li>
-                ${item.data} - ${item.hora}
-                <button onclick="removerHorario(${index})">Excluir</button>
-            </li>
-        `;
-    });
-}
-
-function removerHorario(index) {
-    // Usa filter para evitar problemas de índice com splice
-    horarios = horarios.filter((_, i) => i !== index);
-    localStorage.setItem("horarios", JSON.stringify(horarios));
-    carregarHorarios();
-}
-
-// =====================
-// INICIALIZAÇÃO
-// =====================
-
-window.onload = function() {
-    carregarHorarios();
-
-    const nomeStudio = localStorage.getItem("nomeStudio");
-    const campoNome = document.getElementById("nomeStudio");
-
-    // Só preenche se for um input/textarea (não sobrescreve outros elementos)
-    if (campoNome && nomeStudio && (campoNome.tagName === "INPUT" || campoNome.tagName === "TEXTAREA")) {
-        campoNome.value = nomeStudio;
-    }
-
-    const fotoSalva = localStorage.getItem("fotoCapa");
-    const preview = document.getElementById("previewFoto");
-
-    if (preview && fotoSalva) {
-        preview.src = fotoSalva;
-        preview.style.display = "block";
-    }
-};
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (document.getElementById('loginCelular') || document.getElementById('loginSenha')) {
+    if (typeof login === 'function') login();
+  }
+  if (document.getElementById('confirmarSenha')) {
+    if (typeof cadastrar === 'function') cadastrar();
+  }
+});
