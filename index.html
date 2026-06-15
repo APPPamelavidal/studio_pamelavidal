@@ -4,41 +4,75 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Studio Pamela Vidal</title>
-
 <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-<header>
-    <h1>Studio Pamela Vidal</h1>
+<div id="toast-container"></div>
+
+<header class="site-header">
+  <span class="logo" id="headerNome">Studio Pamela Vidal</span>
+  <nav>
+    <a href="login.html">Entrar</a>
+    <a href="cadastro.html">Cadastrar</a>
+  </nav>
 </header>
 
 <section class="hero">
-
-    <img src="https://via.placeholder.com/300x300"
-         alt="Pamela"
+  <div class="hero-foto-wrap">
+    <img id="fotoPrincipal"
+         src="https://placehold.co/200x200/fce8f0/d4799a?text=SPV"
+         alt="Studio Pamela Vidal"
          class="foto-principal">
+    <span class="hero-badge">✨ Beauty Studio</span>
+  </div>
 
-    <h2>Realce sua beleza</h2>
+  <p class="hero-nome-studio" id="heroNome">Studio Pamela Vidal</p>
+  <h2>Realce sua <span>beleza</span></h2>
+  <p id="heroDesc">Agende seu horário online de forma rápida e prática. Experiência premium com café e mimos especiais.</p>
 
-    <p>
-        Agende seu horário online de forma rápida e prática.
-    </p>
-
-    <div class="botoes">
-
-        <a href="cadastro.html" class="btn">
-            Criar Conta
-        </a>
-
-        <a href="login.html" class="btn">
-            Entrar
-        </a>
-
-    </div>
-
+  <div class="hero-botoes">
+    <a href="cadastro.html" class="btn btn-primary">✨ Criar conta</a>
+    <a href="login.html" class="btn btn-outline">Entrar</a>
+  </div>
 </section>
 
+<!-- Banners de promoções / eventos -->
+<div id="secaoBanners" class="banners-section" style="display:none">
+  <h3>🌸 Promoções & Eventos</h3>
+  <div class="banners-grid" id="gridBanners"></div>
+</div>
+
+<br>
+
+<script src="js/app.js"></script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const nome = localStorage.getItem('nomeStudio') || 'Studio Pamela Vidal';
+    document.getElementById('headerNome').textContent = nome;
+    document.getElementById('heroNome').textContent = nome;
+    document.title = nome;
+
+    const desc = localStorage.getItem('descStudio');
+    if (desc) document.getElementById('heroDesc').textContent = desc;
+
+    const foto = localStorage.getItem('fotoCapa');
+    if (foto) document.getElementById('fotoPrincipal').src = foto;
+
+    // Banners
+    const banners = JSON.parse(localStorage.getItem('banners') || '[]');
+    if (banners.length > 0) {
+      document.getElementById('secaoBanners').style.display = 'block';
+      const grid = document.getElementById('gridBanners');
+      banners.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'banner-card';
+        div.innerHTML = `<img src="${b.img}" alt="${b.label}">
+          <div class="banner-label">${b.label || ''}</div>`;
+        grid.appendChild(div);
+      });
+    }
+  });
+</script>
 </body>
 </html>
