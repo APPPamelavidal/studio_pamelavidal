@@ -60,6 +60,12 @@
     </button>
   </div>
 
+  <!-- PROMOÇÕES RECEBIDAS -->
+  <div class="admin-section" id="secaoPromos" style="display:none">
+    <h3>🎉 Suas Promoções Exclusivas</h3>
+    <div id="listaPromos"></div>
+  </div>
+
   <!-- MEUS AGENDAMENTOS -->
   <div class="admin-section">
     <h3>📋 Meus Agendamentos</h3>
@@ -96,6 +102,7 @@
     carregarDatasChips();
     carregarOpcoesCliente();
     carregarMeusAgendamentos();
+    carregarPromos();
   });
 
   function carregarDatasChips() {
@@ -239,7 +246,6 @@
     };
 
     const lista = JSON.parse(localStorage.getItem('agendamentos') || '[]');
-    // Checa se já foi agendado por alguém
     const ocupado = lista.find(a => a.data === dataSelecionada && a.hora === horaSelecionada);
     if (ocupado) {
       toast('Este horário já foi agendado. Escolha outro!', 'err');
@@ -250,14 +256,13 @@
     lista.push(agendamento);
     localStorage.setItem('agendamentos', JSON.stringify(lista));
 
-    toast('Agendamento confirmado! Até lá 💕', 'ok');
+    toast('Agendamento confirmado! Abrindo WhatsApp... 💕', 'ok');
 
     // Reset
     dataSelecionada = null;
     horaSelecionada = null;
     cafeSelecionado = null;
     brindeSelecionado = null;
-
     document.getElementById('obsAgend').value = '';
     document.getElementById('horasSection').style.display = 'none';
     document.getElementById('btnAgendar').style.display = 'none';
@@ -266,6 +271,48 @@
     carregarDatasChips();
     carregarMeusAgendamentos();
     enviarParaGoogleSheets(agendamento);
+
+    // Abre WhatsApp com mensagem pronta para a cliente enviar
+    setTimeout(() => abrirWhatsAppAgendamento(agendamento), 800);
+  }
+
+  function abrirWhatsAppAgendamento(a) {
+    const numero = '5551980179922';
+    const msg = `🌸 *Novo Agendamento!*\n\n`
+      + `👤 *Nome:* ${a.nomeCliente}\n`
+      + `📱 *Celular:* ${a.celular}\n`
+      + `📅 *Data:* ${formatarData(a.data)}\n`
+      + `⏰ *Horário:* ${a.hora}\n`
+      + `☕ *Café:* ${a.cafe}\n`
+      + `🎁 *Brinde:* ${a.brinde}\n`
+      + (a.obs ? `📝 *Obs:* ${a.obs}\n` : '')
+      + `\nAté lá! 💕`;
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  function carregarPromos() {
+    const usuario = JSON.parse(localStorage.getItem('usuarioLogado') || '{}');
+    const todasPromos = JSON.parse(localStorage.getItem('promos') || '[]');
+    // Filtra promos para esta cliente (por celular) ou para todas
+    const minhas = todasPromos.filter(p =>
+      p.celular === usuario.celular || p.celular === 'todas'
+    );
+
+    const secao = document.getElementById('secaoPromos');
+    const lista  = document.getElementById('listaPromos');
+
+    if (minhas.length === 0) { secao.style.display = 'none'; return; }
+    secao.style.display = 'block';
+
+    lista.innerHTML = minhas.reverse().map(p => `
+      <div class="agend-card" style="border-left:4px solid var(--ouro);margin-bottom:12px;">
+        <h4 style="color:var(--ouro-esc);">🎉 ${p.titulo}</h4>
+        <p style="margin-top:6px;line-height:1.6;">${p.mensagem}</p>
+        <div class="ac-tags" style="margin-top:10px;">
+          <span class="ac-tag">${p.enviadoEm ? new Date(p.enviadoEm).toLocaleDateString('pt-BR') : ''}</span>
+        </div>
+      </div>
+    `).join('');
   }
 
   function carregarMeusAgendamentos() {
