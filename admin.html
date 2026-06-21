@@ -26,10 +26,11 @@
 
   <!-- TABS -->
   <div class="admin-tabs">
-    <button class="admin-tab ativo" onclick="mudarTab('tela')">🖼️ Tela de Entrada</button>
-    <button class="admin-tab" onclick="mudarTab('horarios')">📅 Horários</button>
-    <button class="admin-tab" onclick="mudarTab('cafe')">☕ Café & Brindes</button>
-    <button class="admin-tab" onclick="mudarTab('agendamentos')">📋 Agendamentos</button>
+    <button class="admin-tab ativo" onclick="mudarTab('tela', this)">🖼️ Tela</button>
+    <button class="admin-tab" onclick="mudarTab('horarios', this)">📅 Horários</button>
+    <button class="admin-tab" onclick="mudarTab('cafe', this)">☕ Café</button>
+    <button class="admin-tab" onclick="mudarTab('clientes', this)">👥 Clientes</button>
+    <button class="admin-tab" onclick="mudarTab('agendamentos', this)">📋 Agenda</button>
   </div>
 
   <!-- TAB: TELA DE ENTRADA -->
@@ -130,6 +131,48 @@
 
   </div>
 
+  <!-- TAB: CLIENTES -->
+  <div class="tab-panel" id="tab-clientes">
+
+    <div class="admin-section">
+      <h3>👥 Clientes Cadastradas</h3>
+      <p style="font-size:.85rem;color:var(--cinza-txt);margin-bottom:16px;">
+        Selecione uma cliente para enviar uma promoção ou mensagem personalizada via WhatsApp.
+      </p>
+      <div id="listaClientes"></div>
+    </div>
+
+    <!-- Modal de envio de promoção -->
+    <div id="modalPromo" style="display:none;position:fixed;inset:0;background:rgba(45,31,39,.55);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:#fff;border-radius:var(--radius);padding:28px;width:100%;max-width:480px;box-shadow:var(--sombra-lg);">
+        <h3 style="color:var(--rosa-esc);margin-bottom:6px;">✉️ Enviar para <span id="modalNomeCliente"></span></h3>
+        <p style="font-size:.83rem;color:var(--cinza-txt);margin-bottom:16px;">A mensagem aparece na aba dela no app <strong>e</strong> você pode abrir o WhatsApp direto.</p>
+
+        <div class="field">
+          <label>Título da promoção</label>
+          <input type="text" id="promoTitulo" placeholder="Ex: Promoção Especial de Julho 🌸">
+        </div>
+        <div class="field">
+          <label>Mensagem personalizada</label>
+          <textarea id="promoMensagem" style="min-height:110px;" placeholder="Ex: Oi Maria! Temos 30% off em manicure esta semana só pra você. Que tal agendar? 💅"></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+          <button class="form-btn" style="flex:1;" onclick="enviarPromoApp()">
+            📲 Enviar no App
+          </button>
+          <button class="form-btn gold" style="flex:1;" onclick="enviarPromoWhats()">
+            💬 Abrir WhatsApp
+          </button>
+        </div>
+        <button onclick="fecharModal()" style="width:100%;margin-top:10px;padding:10px;border:none;background:var(--cinza-b);border-radius:50px;cursor:pointer;font-weight:600;color:var(--cinza-txt);">
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+  </div>
+
   <!-- TAB: AGENDAMENTOS -->
   <div class="tab-panel" id="tab-agendamentos">
 
@@ -189,13 +232,14 @@ function doPost(e) {
 // =====================
 // TABS
 // =====================
-function mudarTab(id) {
+function mudarTab(id, btn) {
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('ativo'));
   document.querySelectorAll('.admin-tab').forEach(b => b.classList.remove('ativo'));
   document.getElementById('tab-' + id).classList.add('ativo');
-  event.target.classList.add('ativo');
+  if (btn) btn.classList.add('ativo');
 
   if (id === 'agendamentos') carregarAgendamentos();
+  if (id === 'clientes') carregarClientes();
 }
 
 // =====================
@@ -512,6 +556,121 @@ function abrirGuiaSheets() {
   const guia = document.getElementById('sheetsGuia');
   guia.style.display = guia.style.display === 'none' ? 'block' : 'none';
 }
+
+// =====================
+// CLIENTES
+// =====================
+let clienteSelecionado = null;
+
+function carregarClientes() {
+  const usuarios     = JSON.parse(localStorage.getItem('usuarios')     || '[]');
+  const agendamentos = JSON.parse(localStorage.getItem('agendamentos') || '[]');
+  const cont = document.getElementById('listaClientes');
+
+  if (usuarios.length === 0) {
+    cont.innerHTML = '<div class="empty-state"><div class="es-icon">👥</div><p>Nenhuma cliente cadastrada ainda.</p></div>';
+    return;
+  }
+
+  cont.innerHTML = usuarios.map(u => {
+    const agends = agendamentos.filter(a => a.celular === u.celular);
+    const ultimo = agends.sort((a,b) => (b.criadoEm||'').localeCompare(a.criadoEm||''))[0];
+    return `
+      <div class="agend-card" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h4 style="margin-bottom:4px;">👤 ${u.nome}</h4>
+            <p>📱 ${u.celular}</p>
+            <p style="font-size:.82rem;color:var(--cinza-txt);margin-top:3px;">
+              ${agends.length} agendamento(s)
+              ${ultimo ? '· Último: ' + formatarData(ultimo.data) : ''}
+            </p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn btn-primary" style="padding:8px 16px;font-size:.83rem;"
+              onclick="abrirModal('${u.nome.replace(/'/g,"\\'")}', '${u.celular}')">
+              ✉️ Enviar promoção
+            </button>
+            <button class="btn btn-gold" style="padding:8px 16px;font-size:.83rem;"
+              onclick="abrirWhatsAppDireto('${u.celular}', '${u.nome.replace(/'/g,"\\'")}')">
+              💬 WhatsApp direto
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function abrirModal(nome, celular) {
+  clienteSelecionado = { nome, celular };
+  document.getElementById('modalNomeCliente').textContent = nome;
+  document.getElementById('promoTitulo').value   = '';
+  document.getElementById('promoMensagem').value = '';
+  const modal = document.getElementById('modalPromo');
+  modal.style.display = 'flex';
+}
+
+function fecharModal() {
+  document.getElementById('modalPromo').style.display = 'none';
+  clienteSelecionado = null;
+}
+
+function enviarPromoApp() {
+  if (!clienteSelecionado) return;
+  const titulo   = document.getElementById('promoTitulo').value.trim();
+  const mensagem = document.getElementById('promoMensagem').value.trim();
+  if (!titulo || !mensagem) { toast('Preencha título e mensagem', 'err'); return; }
+
+  const promos = JSON.parse(localStorage.getItem('promos') || '[]');
+  promos.push({
+    id: Date.now(),
+    celular:   clienteSelecionado.celular,
+    nome:      clienteSelecionado.nome,
+    titulo,
+    mensagem,
+    enviadoEm: new Date().toISOString()
+  });
+  localStorage.setItem('promos', JSON.stringify(promos));
+  toast('Promoção enviada para ' + clienteSelecionado.nome + '! ✅', 'ok');
+  fecharModal();
+}
+
+function enviarPromoWhats() {
+  if (!clienteSelecionado) return;
+  const titulo   = document.getElementById('promoTitulo').value.trim();
+  const mensagem = document.getElementById('promoMensagem').value.trim();
+
+  if (titulo && mensagem) {
+    const promos = JSON.parse(localStorage.getItem('promos') || '[]');
+    promos.push({
+      id: Date.now(),
+      celular: clienteSelecionado.celular,
+      nome:    clienteSelecionado.nome,
+      titulo, mensagem,
+      enviadoEm: new Date().toISOString()
+    });
+    localStorage.setItem('promos', JSON.stringify(promos));
+  }
+
+  const numero = '55' + clienteSelecionado.celular.replace(/\D/g, '');
+  const texto  = titulo
+    ? `🌸 *${titulo}*\n\n${mensagem}`
+    : mensagem || `Olá ${clienteSelecionado.nome}! Temos uma novidade pra você 💅`;
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
+  fecharModal();
+}
+
+function abrirWhatsAppDireto(celular, nome) {
+  const numero = '55' + celular.replace(/\D/g, '');
+  const texto  = `Olá ${nome}! 🌸 Aqui é o Studio Pamela Vidal.`;
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
+}
+
+document.addEventListener('click', e => {
+  const modal = document.getElementById('modalPromo');
+  if (modal && e.target === modal) fecharModal();
+});
 
 // =====================
 // UTILS
